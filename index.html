@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Watchlist</title>
+
+  <script>
+    // Apply a saved theme right away so the page never flashes the wrong colors
+    (function () {
+      try {
+        var stored = localStorage.getItem("watchlist-theme");
+        if (stored === "light" || stored === "dark") {
+          document.documentElement.dataset.theme = stored;
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <button type="button" id="theme-btn" class="theme-btn">Light mode</button>
+    <h1>My Watchlist</h1>
+    <p>Keep track of what you want to watch and what you’ve finished.</p>
+  </header>
+
+  <main>
+
+    <section id="add-section">
+      <h2>Add a title</h2>
+      <form id="add-form">
+        <label for="title">Title</label>
+        <input type="text" id="title" placeholder="e.g. Severance" required maxlength="100">
+
+        <label for="type">Type</label>
+        <select id="type">
+          <option value="show">TV show</option>
+          <option value="movie">Movie</option>
+          <option value="anime">Anime</option>
+        </select>
+
+        <label for="platform">Where to watch</label>
+        <input type="text" id="platform" placeholder="e.g. Netflix">
+
+        <label for="notes">Notes (optional)</label>
+        <textarea id="notes" rows="2" maxlength="200" placeholder="e.g. Recommended by a friend"></textarea>
+
+        <button type="submit">Add to watchlist</button>
+      </form>
+    </section>
+
+    <section id="list-section">
+      <h2>My list</h2>
+
+      <button type="button" id="pick-btn" class="pick-btn">Pick something for me</button>
+
+      <div class="toolbar">
+        <input type="search" id="search" placeholder="Search your list" aria-label="Search your list">
+        <select id="sort" aria-label="Sort your list">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="title">Title A to Z</option>
+          <option value="rating">Highest rated</option>
+        </select>
+      </div>
+
+      <div id="filters">
+        <button type="button" class="active" data-filter="all">All</button>
+        <button type="button" data-filter="want">Want to watch</button>
+        <button type="button" data-filter="watched">Watched</button>
+      </div>
+
+      <ul id="watchlist"></ul>
+
+      <div class="backup">
+        <button type="button" id="export-btn">Export list</button>
+        <button type="button" id="import-btn">Import list</button>
+        <input type="file" id="import-input" accept=".json,application/json" hidden>
+        <p id="backup-status" class="backup-status" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section id="stats-section">
+      <h2>Your stats</h2>
+
+      <p id="stats-empty" class="empty">Add some titles to see your stats.</p>
+
+      <div id="stats-body" hidden>
+        <div class="stat-cards">
+          <div class="stat-card"><span class="stat-num" id="stat-total">0</span><span class="stat-label">Titles</span></div>
+          <div class="stat-card"><span class="stat-num" id="stat-watched">0</span><span class="stat-label">Watched</span></div>
+          <div class="stat-card"><span class="stat-num" id="stat-togo">0</span><span class="stat-label">To go</span></div>
+          <div class="stat-card"><span class="stat-num" id="stat-avg">–</span><span class="stat-label">Avg rating</span></div>
+        </div>
+
+        <h3 class="bars-heading">Progress</h3>
+        <div id="progress-bars"></div>
+
+        <h3 class="bars-heading">By type</h3>
+        <div id="type-bars"></div>
+
+        <h3 class="bars-heading">Your ratings</h3>
+        <div id="rating-bars"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>Background photo from Pexels.</p>
+  </footer>
+
+  <!-- Pop-up: edit a title -->
+  <dialog id="edit-dialog" aria-labelledby="edit-heading">
+    <form id="edit-form">
+      <h2 id="edit-heading">Edit title</h2>
+
+      <label for="edit-title">Title</label>
+      <input type="text" id="edit-title" required maxlength="100">
+
+      <label for="edit-type">Type</label>
+      <select id="edit-type">
+        <option>TV show</option>
+        <option>Movie</option>
+        <option>Anime</option>
+      </select>
+
+      <label for="edit-platform">Where to watch</label>
+      <input type="text" id="edit-platform">
+
+      <label for="edit-notes">Notes</label>
+      <textarea id="edit-notes" rows="3" maxlength="200"></textarea>
+
+      <div class="dialog-actions">
+        <button type="button" class="quiet" id="edit-cancel">Cancel</button>
+        <button type="submit">Save changes</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Pop-up: random pick -->
+  <dialog id="pick-dialog" aria-labelledby="pick-heading">
+    <h2 id="pick-heading">Tonight’s pick</h2>
+    <p id="pick-title" class="pick-title"></p>
+    <p id="pick-meta" class="pick-meta"></p>
+    <p id="pick-notes" class="item-notes"></p>
+    <div class="dialog-actions">
+      <button type="button" class="btn quiet" id="pick-close">Close</button>
+      <button type="button" class="btn" id="pick-again">Pick again</button>
+    </div>
+  </dialog>
+
+  <!-- The "Deleted. Undo" message -->
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden>
+    <span id="toast-text"></span>
+    <button type="button" id="toast-undo">Undo</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
